@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CryptoTrackr - Live Cryptocurrency Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CryptoTrackr 💸</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="https://cryptologos.cc/logos/bitcoin-btc-logo.png" />
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
+
+  <!-- Header -->
   <header class="text-center p-6 border-b border-gray-700">
     <h1 class="text-4xl font-bold mb-2">💸 CryptoTrackr</h1>
-    <p class="text-gray-400">Real-Time Crypto Prices, Changes & Trends</p>
+    <p class="text-gray-400">Live prices, trends & market caps for your favorite coins 🚀</p>
   </header>
 
+  <!-- Controls -->
   <main class="max-w-6xl mx-auto p-6">
-    <!-- Controls -->
     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-      <input type="text" id="searchInput" placeholder="Search coin..."
-             class="w-full md:w-1/2 px-4 py-2 rounded-md text-black" />
+      <input type="text" id="searchInput" placeholder="Search coin..." class="w-full md:w-1/2 px-4 py-2 rounded-md text-black" />
       <select id="currencySelector" class="px-4 py-2 rounded-md text-black">
         <option value="usd">USD ($)</option>
         <option value="inr">INR (₹)</option>
@@ -25,19 +26,23 @@
       </select>
     </div>
 
-    <!-- Coin Cards -->
+    <!-- Coin Cards Container -->
     <div id="crypto-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Dynamic content -->
+      <!-- Coins will be injected here -->
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="text-center text-sm text-gray-500 p-4 border-t border-gray-700">
-    Data provided by <a href="https://www.coingecko.com/" target="_blank" class="underline hover:text-blue-400">CoinGecko API</a>
+    ❤️ Data by <a href="https://www.coingecko.com/" target="_blank" class="underline hover:text-pink-400">CoinGecko</a>
   </footer>
 
+  <!-- Script -->
   <script>
     const apiURL = "https://api.coingecko.com/api/v3/coins/markets";
-    const defaultCoins = ["bitcoin", "ethereum", "dogecoin", "cardano", "solana", "ripple", "litecoin"];
+    const proxy = "https://api.allorigins.win/raw?url=";
+
+    const defaultCoins = ["bitcoin", "ethereum", "dogecoin", "cardano", "solana", "litecoin"];
     const container = document.getElementById("crypto-container");
     const searchInput = document.getElementById("searchInput");
     const currencySelector = document.getElementById("currencySelector");
@@ -47,21 +52,20 @@
 
     async function fetchData() {
       try {
-        const response = await fetch(
-          `${apiURL}?vs_currency=${selectedCurrency}&ids=${defaultCoins.join(',')}&order=market_cap_desc`
-        );
+        const fullURL = `${apiURL}?vs_currency=${selectedCurrency}&ids=${defaultCoins.join(',')}&order=market_cap_desc`;
+        const response = await fetch(`${proxy}${encodeURIComponent(fullURL)}`);
         currentData = await response.json();
         renderCoins(currentData);
       } catch (err) {
-        container.innerHTML = `<p class='text-red-500'>Failed to fetch data. Please try again later.</p>`;
-        console.error(err);
+        container.innerHTML = `<p class='text-red-500'>⚠️ Fetch failed. Try again later.</p>`;
+        console.error("Error fetching data:", err);
       }
     }
 
     function renderCoins(data) {
       const term = searchInput.value.toLowerCase();
       const coins = data.filter(coin => coin.name.toLowerCase().includes(term));
-      container.innerHTML = coins.length ? "" : "<p class='text-gray-400'>No coins matched your search.</p>";
+      container.innerHTML = coins.length ? "" : "<p class='text-gray-400 text-center w-full'>😳 No matching coins found.</p>";
 
       const currencySymbol = selectedCurrency === 'inr' ? '₹' : selectedCurrency === 'eur' ? '€' : '$';
 
@@ -93,6 +97,7 @@
       fetchData();
     });
 
+    // Initial Load
     fetchData();
     setInterval(fetchData, 60000); // Refresh every 60 seconds
   </script>
